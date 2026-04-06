@@ -5,6 +5,7 @@ import ReactQuill from "react-quill-new";
 
 export default function Form({ setData }) {
   const defaultForm = { heading: "", imageUrl: "", textColor: "#111111" };
+
   const defaultPreview = {
     heading: "Welcome",
     paragraph: "<p>This is default content</p>",
@@ -19,10 +20,13 @@ export default function Form({ setData }) {
 
   const validate = () => {
     let err = {};
+
     if (!form.heading.trim()) err.heading = "Heading required";
-    if (!paragraph || paragraph === "<p><br></p>") err.paragraph = "Paragraph required";
+    if (!paragraph || paragraph === "<p><br></p>")
+      err.paragraph = "Paragraph required";
     if (!form.imageUrl.trim()) err.imageUrl = "Image URL required";
-    if (!/^#([0-9A-F]{3}){1,2}$/i.test(form.textColor)) err.textColor = "Invalid HEX color";
+    if (!/^#([0-9A-F]{3}){1,2}$/i.test(form.textColor))
+      err.textColor = "Invalid HEX color";
 
     setErrors(err);
 
@@ -35,26 +39,41 @@ export default function Form({ setData }) {
 
   const handleSubmit = async () => {
     if (!validate()) return;
+
     setLoading(true);
 
     try {
-      const res = await axios.post("https://nidish-backend.onrender.com/api/content", {
-        heading: form.heading,
-        paragraph,
-        imageUrl: form.imageUrl,
-        textColor: form.textColor,
-      });
-      setData(res.data.data); 
+      const res = await axios.post(
+        "https://nidish-fullstack-assignment.onrender.com/api/content",
+        {
+          heading: form.heading,
+          paragraph,
+          imageUrl: form.imageUrl,
+          textColor: form.textColor,
+        },
+        {
+          timeout: 10000, 
+        }
+      );
+
+      setData(res.data.data);
       toast.success("Content updated 🚀");
+
     } catch (err) {
-  if (err.response?.data?.errors) {
-    setErrors(err.response.data.errors);
-    toast.error(Object.values(err.response.data.errors).join(", "));
-  } else {
-    toast.error("Server error. Try again later");
-  }
-}
-    setLoading(false);
+      console.log("ERROR:", err);
+
+      if (err.response?.data?.errors) {
+        setErrors(err.response.data.errors);
+        toast.error(Object.values(err.response.data.errors).join(", "));
+      } else if (err.response?.data?.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error("Server is waking up, try again...");
+      }
+
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReset = () => {
@@ -76,7 +95,9 @@ export default function Form({ setData }) {
         <input
           placeholder="Enter heading..."
           value={form.heading}
-          onChange={(e) => setForm({ ...form, heading: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, heading: e.target.value })
+          }
         />
         {errors.heading && <p className="error">{errors.heading}</p>}
       </div>
@@ -94,7 +115,9 @@ export default function Form({ setData }) {
         <input
           placeholder="https://example.com/image.jpg"
           value={form.imageUrl}
-          onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, imageUrl: e.target.value })
+          }
         />
         {errors.imageUrl && <p className="error">{errors.imageUrl}</p>}
       </div>
@@ -104,16 +127,24 @@ export default function Form({ setData }) {
         <input
           placeholder="#111111"
           value={form.textColor}
-          onChange={(e) => setForm({ ...form, textColor: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, textColor: e.target.value })
+          }
         />
         {errors.textColor && <p className="error">{errors.textColor}</p>}
       </div>
 
       <div className="btn-group">
         <button onClick={handleSubmit} disabled={loading}>
-          {loading ? "Submitting..." : "Submit 🚀"}
+          {loading ? "Please wait... Server waking up 😴" : "Submit 🚀"}
         </button>
-        <button type="button" className="reset-btn" onClick={handleReset} disabled={isEmpty}>
+
+        <button
+          type="button"
+          className="reset-btn"
+          onClick={handleReset}
+          disabled={isEmpty}
+        >
           Reset
         </button>
       </div>
