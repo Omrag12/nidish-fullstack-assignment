@@ -23,9 +23,10 @@ const isValidURL = (url) => {
 
 const isImageAccessible = async (url) => {
   try {
-    const res = await axios.head(url, { timeout: 5000 });
+    const res = await axios.head(url, { timeout: 3000 });
     return res.status === 200;
-  } catch {
+  } catch (err) {
+    console.log("Image check failed:", err.message);
     return true; 
   }
 };
