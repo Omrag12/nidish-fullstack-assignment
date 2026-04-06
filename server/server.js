@@ -19,9 +19,7 @@ const isValidURL = (url) => {
 };
 
 
-const isImageURL = (url) =>
-  /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
-
+const isImageURL = (url) => true;
 
 const isImageAccessible = async (url) => {
   try {
@@ -55,16 +53,12 @@ app.post("/api/content", async (req, res) => {
 
  
   if (imageUrl && isValidURL(imageUrl)) {
-    if (!isImageURL(imageUrl)) {
-      errors.imageUrl = "Must be a direct image URL (.jpg, .png, etc)";
-    } else {
-      const accessible = await isImageAccessible(imageUrl);
-      if (!accessible) {
-        errors.imageUrl = "Image not accessible or broken link";
-      }
-    }
-  }
+  const accessible = await isImageAccessible(imageUrl);
 
+  if (!accessible) {
+    errors.imageUrl = "Image not accessible or broken link";
+  }
+}
  
   if (Object.keys(errors).length > 0) {
     return res.status(400).json({
