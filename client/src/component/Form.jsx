@@ -47,9 +47,13 @@ export default function Form({ setData }) {
       setData(res.data.data); 
       toast.success("Content updated 🚀");
     } catch (err) {
-      setErrors(err.response?.data?.errors || {});
-      toast.error("Validation failed ❌");
-    }
+  if (err.response?.data?.errors) {
+    setErrors(err.response.data.errors);
+    toast.error(Object.values(err.response.data.errors).join(", "));
+  } else {
+    toast.error("Server error. Try again later");
+  }
+}
     setLoading(false);
   };
 
