@@ -30,6 +30,10 @@ const isImageAccessible = async (url) => {
   }
 };
 
+app.get("/", (req, res) => {
+  res.send("Backend is running 🚀");
+});
+
 app.post("/api/content", async (req, res) => {
   const { heading, paragraph, imageUrl, textColor } = req.body;
 
